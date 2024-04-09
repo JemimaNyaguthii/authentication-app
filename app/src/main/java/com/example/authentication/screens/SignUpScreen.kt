@@ -51,7 +51,7 @@ fun SignUpPage(navController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(15.dp, 56.dp,15.dp,15.dp)
+            .padding(15.dp, 56.dp, 15.dp, 15.dp)
     )
     {
         val username = remember { mutableStateOf("") }
@@ -60,32 +60,73 @@ fun SignUpPage(navController: NavHostController) {
         var isPasswordVisible by remember { mutableStateOf(false) }
         var rememberMe by remember { mutableStateOf(false) }
 
+        var usernameError by remember { mutableStateOf("") }
+        var passwordError by remember { mutableStateOf("") }
+        var emailError by remember { mutableStateOf("") }
+
+
         Text(text = "Create account", style = TextStyle(fontSize = 30.sp, fontFamily = FontFamily.Serif,fontWeight = FontWeight.Black))
 
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Username", style = TextStyle(fontSize =15.sp , fontFamily = FontFamily.Serif))
-        OutlinedTextField(
-            value = username.value,
-            onValueChange = { username.value = it },
-            label = { Text("Your username") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column {
+            OutlinedTextField(
+                value = username.value,
+                onValueChange = {
+                    username.value = it
+                    usernameError = if (it.isEmpty()) "Username is required" else ""
+                },
+                label = { Text("Your username") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = usernameError.isNotEmpty(),
+                singleLine = true
+            )
+            Text(
+                text = usernameError,
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Email", style = TextStyle(fontSize =15.sp , fontFamily = FontFamily.Serif))
-        OutlinedTextField(
-            value = email.value,
-            onValueChange = { email.value = it },
-            label = { Text("Your email") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column {
+            OutlinedTextField(
+                value = email.value,
+                onValueChange = {
+                    email.value = it
+                    emailError = if (it.isEmpty()) "Email is required" else ""
+                },
+                label = { Text("Your email") },
+                modifier = Modifier.fillMaxWidth(),
+                isError = emailError.isNotEmpty(),
+                singleLine = true
+            )
+            Text(
+                text = emailError,
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
         Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Password", style = TextStyle(fontSize =15.sp , fontFamily = FontFamily.Serif))
+        Column {
             OutlinedTextField(
-            value = password.value,
-            onValueChange = { password.value = it },
-            label = { Text("Your password") },
-            modifier = Modifier.fillMaxWidth(),
+                value = password.value,
+                onValueChange = { newValue ->
+                    password.value = newValue
+                    passwordError = if (newValue.isEmpty()) {
+                        "Password is required"
+                    } else if (!newValue.any { it.isDigit() } || !newValue.any { it.isLetter() }) {
+                        "Password must contain both letters and numbers"
+                    } else {
+                        ""
+                    }
+                },
+                label = { Text("Your password") },
+                isError = passwordError.isNotEmpty(),
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
                 visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 trailingIcon = {
                     IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -96,6 +137,12 @@ fun SignUpPage(navController: NavHostController) {
                     }
                 }
             )
+            Text(
+                text = passwordError,
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(10.dp))
         Row(
@@ -119,11 +166,30 @@ fun SignUpPage(navController: NavHostController) {
                     )
                 )
             }
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
                 Button(
                     onClick = {
-                        if (username.value.isEmpty() || email.value.isEmpty() || password.value.isEmpty()) {
+                        var hasError = false
+                        if (username.value.isEmpty()) {
+                            usernameError = "Username is required"
+                            hasError = true
+                        } else {
+                            usernameError = ""
+                        }
+                        if (email.value.isEmpty()) {
+                            emailError = "Email is required"
+                            hasError = true
+                        } else {
+                            emailError = ""
+                        }
+                        if (password.value.isEmpty()) {
+                            passwordError = "Password is required"
+                            hasError = true
+                        } else {
+                            passwordError = ""
+                        }
+                        if (hasError) {
                             return@Button
                         }
                         navController.navigate(Routes.Login.route)
@@ -143,7 +209,7 @@ fun SignUpPage(navController: NavHostController) {
                 }
             }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center

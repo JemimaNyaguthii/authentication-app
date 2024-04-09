@@ -58,6 +58,9 @@ fun LoginPage(navController: NavHostController) {
         var password = remember { mutableStateOf("") }
         var isPasswordVisible by remember { mutableStateOf(false) }
         var rememberMe by remember { mutableStateOf(false) }
+
+        var usernameError by remember { mutableStateOf("") }
+        var passwordError by remember { mutableStateOf("") }
         Text(
             text = "Sign In",
             style = TextStyle(
@@ -70,18 +73,39 @@ fun LoginPage(navController: NavHostController) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(text = "Username", style = TextStyle(fontSize = 15.sp, fontFamily = FontFamily.Serif))
         OutlinedTextField(
-            label = { Text(text = "Your username") },
             value = username.value,
-            onValueChange = { username.value = it },
-            modifier = Modifier.fillMaxWidth()
+            onValueChange = { username.value = it
+                usernameError = if (it.isEmpty()) "Username is required" else ""
+            },
+            label = { Text(text = "Your username") },
+            modifier = Modifier.fillMaxWidth(),
+            isError = usernameError.isNotEmpty(),
+            singleLine = true
+
+        )
+        Text(
+            text = usernameError,
+            color = Color.Red,
+            modifier = Modifier.padding(start = 16.dp)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
         Text(text = "Password", style = TextStyle(fontSize = 15.sp, fontFamily = FontFamily.Serif))
         OutlinedTextField(
             value = password.value,
-            onValueChange = { password.value = it },
+            onValueChange = { newValue ->
+                password.value = newValue
+                passwordError = if (newValue.isEmpty()) {
+                    "Password is required"
+                } else if (!newValue.any { it.isDigit() } || !newValue.any { it.isLetter() }) {
+                    "Password must contain both letters and numbers"
+                } else {
+                    ""
+                }
+            },
             label = { Text("Your password") },
+            isError = passwordError.isNotEmpty(),
+            singleLine = true,
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
@@ -93,7 +117,12 @@ fun LoginPage(navController: NavHostController) {
                 }
             }
         )
-        Spacer(modifier = Modifier.height(20.dp))
+        Text(
+            text = passwordError,
+            color = Color.Red,
+            modifier = Modifier.padding(start = 16.dp)
+        )
+        Spacer(modifier = Modifier.height(10.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -130,12 +159,28 @@ fun LoginPage(navController: NavHostController) {
                 )
             )
         }
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Box(modifier = Modifier.padding(40.dp, 0.dp, 40.dp, 0.dp)) {
             Button(
                 onClick = {
-                    navController.navigate(Routes.SignUp.route)
+                    var hasError = false
+                    if (username.value.isEmpty()) {
+                        usernameError = "Username is required"
+                        hasError = true
+                    } else {
+                        usernameError = ""
+                    }
+                    if (password.value.isEmpty()) {
+                        passwordError = "Password is required"
+                        hasError = true
+                    } else {
+                        passwordError = ""
+                    }
+                    if (hasError) {
+                        return@Button
+                    }
+                         navController.navigate(Routes.SignUp.route)
                 },
                 shape = RoundedCornerShape(50.dp),
                 modifier = Modifier
@@ -151,7 +196,7 @@ fun LoginPage(navController: NavHostController) {
                 )
             }
         }
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
