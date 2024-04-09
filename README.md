@@ -12,7 +12,7 @@ The sign-up page enables new users to create an account by providing a unique us
 To run the project locally, follow these steps:
 
 * Clone the repository to your local machine:
-`git clone https://github.com/YourUsername/authentication-app.git`
+  `git clone:https://github.com/JemimaNyaguthii/authentication-app.git`
 * Open the project in Android Studio.
 * Build and run the project on an emulator or an android device.
 
